@@ -8,6 +8,7 @@ import qualified Data.Text.Lazy.IO as T
 --import qualified Data.Text as T
 --import qualified Data.Text.IO as T
 import Data.List
+import Data.Maybe
 import Text.Printf
 import Control.Monad
 import Dirs
@@ -30,11 +31,8 @@ rgrep pat dir =
     f Dir (f,d) fn = return (f,d+1)
     f File (f,d) fn = 
       do g <- grep fn pat
-         case g of Just i -> putStr $ printf "Match at line %2d: %s\n" i fn
-                   _ -> return ()
-         ff <- return $ case g of Just _ -> f+1
-                                  _ -> f
-         return (ff,d)
+         when (isJust g)  $ printf "Match at line %2d: %s\n" (fromJust g) fn
+         return (if isJust g then f+1 else f,d)
     excl n = not $ ( foldr (\k a -> (isSuffixOf k n) || a) False kt )
       where
         kt = [ ".rake", ".ml", ".rb", ".hs", ".c", ".cpp", ".py" ]
