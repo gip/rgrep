@@ -23,7 +23,7 @@ grep fn s =
       case r of [] -> Nothing
                 (i,_):_ -> Just i
 
-rgrep pat dir = 
+rgrep pat dir kt = 
   do  args <- getArgs
       acc <- foldSubDirs excl f (0,0) dir
       return acc
@@ -34,16 +34,17 @@ rgrep pat dir =
          when (isJust g)  $ printf "Match at line %2d: %s\n" (fromJust g) fn
          return (if isJust g then f+1 else f,d)
     excl n = not $ ( foldr (\k a -> (isSuffixOf k n) || a) False kt )
-      where
-        kt = [ ".rake", ".ml", ".rb", ".hs", ".c", ".cpp", ".py" ]
 
 main =
-  do (p,d) <- liftM parse $ getArgs
-     if p=="" then putStrLn "rgrep: usage: rgrep <pattern> [<directory>]"
-              else do rgrep p d
+  do (p,d,exc) <- liftM parse $ getArgs
+     if p=="" then putStrLn "rgrep: usage: rgrep <search pattern> [<directory>] [<file type>]"
+              else do rgrep p d exc
                       return ()
      return ()
   where
-    parse a = case a of p:d:_ -> (p,d)
-                        [p] -> (p,".")
-                        _ -> ("","")
+    parse a = case a of [p,d,e] -> (p,d,['.':e])
+                        [p,d] -> (p,d,edefault)
+                        [p] -> (p,".",edefault)
+                        _ -> ("","",[])
+      where
+        edefault = [ ".rake", ".ml", ".rb", ".hs", ".c", ".cpp", ".py" ]
