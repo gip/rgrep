@@ -8,4 +8,6 @@ rgrep: dirs.hs rgrep.hs
 clean:
 	-rm -f rgrep *.hi *.o
 
+install:
+	cp rgrep ~/local/bin
 

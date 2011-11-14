@@ -37,13 +37,12 @@ rgrep pat dir kt =
 
 main =
   do (p,d,exc) <- liftM parse $ getArgs
-     if p=="" then putStrLn "rgrep: usage: rgrep <search pattern> [<directory>] [<file type>]"
+     if p=="" then putStrLn "rgrep: usage: rgrep <search pattern> [<directory>] [<file types>]"
               else do rgrep p d exc
                       return ()
      return ()
   where
-    parse a = case a of [p,d,e] -> (p,d,['.':e])
-                        [p,d] -> (p,d,edefault)
+    parse a = case a of p:d:es -> (p,d,if null es then edefault else map (\n -> '.':n) es)
                         [p] -> (p,".",edefault)
                         _ -> ("","",[])
       where
