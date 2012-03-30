@@ -54,4 +54,4 @@ main =
                         [p] -> (p,".",edefault)
                         _ -> ("","",[])
       where
-        edefault = [ ".rake", ".ml", ".rb", ".hs", ".c", ".cpp", ".py" ]
+        edefault = [ ".rake", ".ml", ".rb", ".hs", ".c", ".cpp", ".py", ".scala", ".java" ]
