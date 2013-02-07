@@ -1,6 +1,6 @@
 module Main( main ) where
 
-import System( getArgs )
+import System.Environment
 import System.IO
 import System.IO.Error
 import qualified Data.Text.Lazy as T
@@ -14,6 +14,7 @@ import qualified Data.ByteString as B
 import Text.Printf
 --import Text.Regex.Posix
 import Text.Regex.PCRE.Light
+--import Text.Regex.PCRE.Wrap
 import Control.Monad
 import Dirs
 
@@ -41,17 +42,18 @@ rgrep pat dir kt =
       do g <- grep fn cpat
          when (isJust g)  $ printf "Match at line %2d: %s\n" (fromJust g) fn
          return (if isJust g then f+1 else f,d)
-    excl n = not $ ( foldr (\k a -> (isSuffixOf k n) || a) False kt )
+    excl = (\n -> not $ ( foldr (\k a -> (isSuffixOf k n) || a) False kt ))
 
 main =
   do (p,d,exc) <- liftM parse $ getArgs
-     if p=="" then putStrLn "rgrep: usage: rgrep <search pattern> [<directory>] [<file types>]"
+     if p=="" then putStrLn $ "rgrep: usage: rgrep <search pattern> [<directory>] [<file types>]\nrgrep: "++sdefault
               else do rgrep p d exc
                       return ()
      return ()
   where
+    edefault = [ ".rake", ".ml", ".rb", ".hs", ".c", ".cpp", ".py", ".scala", ".java" ]
     parse a = case a of p:d:es -> (p,d,if null es then edefault else map (\n -> '.':n) es)
                         [p] -> (p,".",edefault)
                         _ -> ("","",[])
-      where
-        edefault = [ ".rake", ".ml", ".rb", ".hs", ".c", ".cpp", ".py", ".scala", ".java" ]
+    sdefault = foldr (\k a -> a++" "++k) "default file types: " edefault
+
